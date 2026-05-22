@@ -1,0 +1,48 @@
+## Core dotnet build artifacts
+**/bin/
+**/obj/
+
+## Rider/Resharper
+.idea/
+*.sln.iml
+
+## Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+
+## VS Code
+.vscode/
+!/.vscode/extensions.json
+
+## Mac/OS operational files
+.DS_Store
+
+## User-specific files & local settings
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.clw
+*.ncb
+*.pfx
+*.publishsettings
+
+## .NET Core / .NET 5+ user secrets and local configuration backups
+## Descomente a linha abaixo se quiser proteger o appsettings local de desenvolvimento
+# **/appsettings.Development.json
+
+## Docker
+.dockerignore
+
+## Paket version control system
+.paket/
+
+## Tools
+_ReSharper*/
+*DiagnosticStore*
+
+## Output logs
+*.log
