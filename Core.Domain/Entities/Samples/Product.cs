@@ -8,7 +8,7 @@ public class Product
 {
     [Key]
     [Column("id")]
-    public long Id { get; set; }
+    public long? Id { get; set; }
 
     [Required]
     [Column("name")]
@@ -33,5 +33,5 @@ public class Product
     public string? Manufacturer { get; set; }
 
     [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

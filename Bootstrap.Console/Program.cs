@@ -1,4 +1,5 @@
 ﻿using Core.Application.Samples.DTOs;
+using Core.Application.Samples.Mappers;
 using Core.Application.Samples.Services;
 using Core.Domain.Interfaces.Samples;
 using Infra.Database.Abstractions.Configuration;
@@ -105,6 +106,7 @@ class Program
 
         services.AddScoped<IDbConnectionFactory, PostgreSqlConnectionFactory>();
         services.AddScoped<IProductRepository, PostgreSqlProductRepository>();
+        services.AddScoped<ProductMapper>();
         services.AddScoped<ProductService>();
 
         return services.BuildServiceProvider();
@@ -119,6 +121,7 @@ class Program
 
         services.AddScoped<IDbConnectionFactory, OracleConnectionFactory>();
         services.AddScoped<IProductRepository, OracleProductRepository>();
+        services.AddScoped<ProductMapper>();
         services.AddScoped<ProductService>();
 
         return services.BuildServiceProvider();

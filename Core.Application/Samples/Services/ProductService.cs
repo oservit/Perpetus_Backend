@@ -1,4 +1,5 @@
 ﻿using Core.Application.Samples.DTOs;
+using Core.Application.Samples.Mappers;
 using Core.Domain.Entities.Samples;
 using Core.Domain.Interfaces.Samples;
 
@@ -7,10 +8,12 @@ namespace Core.Application.Samples.Services;
 public class ProductService
 {
     private readonly IProductRepository _productRepository;
+    private readonly ProductMapper _mapper;
 
-    public ProductService(IProductRepository productRepository)
+    public ProductService(IProductRepository productRepository, ProductMapper mapper)
     {
         _productRepository = productRepository;
+        _mapper = mapper;
     }
 
     // =========================================================
@@ -18,19 +21,9 @@ public class ProductService
     // =========================================================
     public async Task<long> InsertAsync(CreateProductDto dto)
     {
-        var product = new Product
-        {
-            Name = dto.Name,
-            Description = dto.Description,
-            Category = dto.Category,
-            UnitPrice = dto.UnitPrice,
-            StockQuantity = dto.StockQuantity,
-            UnitOfMeasure = dto.UnitOfMeasure,
-            Manufacturer = dto.Manufacturer,
-            CreatedAt = DateTime.UtcNow
-        };
+        var entity = _mapper.ToEntity(dto);
 
-        return await _productRepository.InsertAsync(product);
+        return await _productRepository.InsertAsync(entity);
     }
 
     // =========================================================
@@ -43,18 +36,10 @@ public class ProductService
         if (product is null)
             return null;
 
-        return new ProductDto
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Description = product.Description,
-            Category = product.Category,
-            UnitPrice = product.UnitPrice,
-            StockQuantity = product.StockQuantity,
-            UnitOfMeasure = product.UnitOfMeasure,
-            Manufacturer = product.Manufacturer,
-            CreatedAt = product.CreatedAt
-        };
+        if (product is null)
+            return null;
+
+        return _mapper.ToDto(product);
     }
 
     // =========================================================
@@ -64,37 +49,20 @@ public class ProductService
     {
         var products = await _productRepository.GetAllAsync();
 
-        return products.Select(product => new ProductDto
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Description = product.Description,
-            Category = product.Category,
-            UnitPrice = product.UnitPrice,
-            StockQuantity = product.StockQuantity,
-            UnitOfMeasure = product.UnitOfMeasure,
-            Manufacturer = product.Manufacturer,
-            CreatedAt = product.CreatedAt
-        });
+        return _mapper.ToDtoList(products.ToList());
     }
 
     // =========================================================
     // UPDATE
     // =========================================================
-    public async Task<int> UpdateAsync(ProductDto dto)
+    public async Task<int> UpdateAsync(UpdateProductDto dto)
     {
-        var product = new Product
-        {
-            Id = dto.Id,
-            Name = dto.Name,
-            Description = dto.Description,
-            Category = dto.Category,
-            UnitPrice = dto.UnitPrice,
-            StockQuantity = dto.StockQuantity,
-            UnitOfMeasure = dto.UnitOfMeasure,
-            Manufacturer = dto.Manufacturer,
-            CreatedAt = dto.CreatedAt
-        };
+        var product = await _productRepository.GetByIdAsync(dto.Id);
+
+        if (product is null)
+            throw new Exception("Product not found");
+
+        _mapper.UpdateEntity(dto, product);
 
         return await _productRepository.UpdateAsync(product);
     }
