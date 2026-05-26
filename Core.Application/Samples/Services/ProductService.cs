@@ -1,6 +1,5 @@
 ﻿using Core.Application.Samples.DTOs;
 using Core.Application.Samples.Mappers;
-using Core.Domain.Entities.Samples;
 using Core.Domain.Interfaces.Samples;
 
 namespace Core.Application.Samples.Services;
