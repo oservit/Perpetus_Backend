@@ -12,6 +12,7 @@
     <ProjectReference Include="..\Infra.Database.Abstractions\Infra.Database.Abstractions.csproj" />
     <ProjectReference Include="..\Infra.Database.PostgreSql\Infra.Database.PostgreSql.csproj" />
     <ProjectReference Include="..\Infra.Hosting\Infra.Hosting.csproj" />
+    <ProjectReference Include="..\Infra.Messaging.RabbitMQ\Infra.Messaging.RabbitMQ.csproj" />
   </ItemGroup>
 
   <ItemGroup>

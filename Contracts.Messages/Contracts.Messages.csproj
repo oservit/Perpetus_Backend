@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Commands\" />
+    <Folder Include="IntegrationEvents\" />
+    <Folder Include="Abstractions\" />
+  </ItemGroup>
+
 </Project>

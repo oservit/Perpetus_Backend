@@ -1,5 +1,5 @@
-﻿using Core.Domain.Entities.Samples;
-using Core.Domain.Interfaces.Samples;
+﻿using Core.Domain.Samples.Entities;
+using Core.Domain.Samples.Interfaces;
 using Infra.Database.Abstractions.Interfaces;
 using Infra.Database.PostgreSql.Repositories.Common;
 

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Core.Domain.Entities.Samples;
+namespace Core.Domain.Samples.Entities;
 
 [Table("products")]
 public class Product

@@ -1,6 +1,4 @@
 ﻿using Core.Application.DependencyInjection;
-
-using Core.Application.Samples.DTOs;
 using Core.Application.Samples.Services;
 
 using Infra.Database.Abstractions.Configuration;

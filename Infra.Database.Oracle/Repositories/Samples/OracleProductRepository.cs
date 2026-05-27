@@ -1,9 +1,9 @@
-﻿using Core.Domain.Entities.Samples;
-using Core.Domain.Interfaces.Samples;
-using Infra.Database.Abstractions.Interfaces;
+﻿using Infra.Database.Abstractions.Interfaces;
 using Oracle.ManagedDataAccess.Client;
 using Dapper;
 using System.Data;
+using Core.Domain.Samples.Interfaces;
+using Core.Domain.Samples.Entities;
 
 namespace Infra.Database.Oracle.Repositories.Samples;
 

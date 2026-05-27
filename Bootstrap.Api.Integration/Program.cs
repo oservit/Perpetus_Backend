@@ -6,6 +6,8 @@ using Infra.Database.PostgreSql.DependencyInjection;
 using Infra.Hosting.DependencyInjection;
 using Infra.Hosting.Options;
 
+using Infra.Messaging.RabbitMQ.DependencyInjection;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ----------------------------------------------------
@@ -33,21 +35,20 @@ builder.Services
     });
 
 // ----------------------------------------------------
-// CUSTOM MODULES
+// MODULES
 // ----------------------------------------------------
 
-builder.Services.AddApiSwagger();
-
-builder.Services.AddApplication();
-
-builder.Services.AddPostgreSqlInfrastructure(
-    builder.Configuration);
-
-builder.Services.AddApiAuthentication(
-    builder.Configuration);
-
-builder.Services.AddApiCors(
-    builder.Configuration);
+builder.Services
+    .AddApiSwagger()
+    .AddApplication()
+    .AddPostgreSqlInfrastructure(
+        builder.Configuration)
+    .AddRabbitMqMessaging(
+        builder.Configuration)
+    .AddApiAuthentication(
+        builder.Configuration)
+    .AddApiCors(
+        builder.Configuration);
 
 var app = builder.Build();
 

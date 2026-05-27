@@ -1,18 +1,27 @@
-﻿using Core.Application.Samples.DTOs;
-using Core.Application.Samples.Mappers;
-using Core.Domain.Interfaces.Samples;
+﻿using Contracts.Messages.Events;
 
+using Core.Application.Messaging.Interfaces;
+using Core.Application.Samples.DTOs;
+using Core.Application.Samples.Mappers;
+using Core.Domain.Samples.Interfaces;
 namespace Core.Application.Samples.Services;
 
 public class ProductService
 {
     private readonly IProductRepository _productRepository;
     private readonly ProductMapper _mapper;
+    private readonly IMessageBus _messageBus;
 
-    public ProductService(IProductRepository productRepository, ProductMapper mapper)
+    public ProductService(
+        IProductRepository productRepository,
+        ProductMapper mapper,
+        IMessageBus messageBus)
     {
         _productRepository = productRepository;
+
         _mapper = mapper;
+
+        _messageBus = messageBus;
     }
 
     // =========================================================
@@ -72,5 +81,26 @@ public class ProductService
     public async Task<int> DeleteAsync(object id)
     {
         return await _productRepository.DeleteAsync(id);
+    }
+
+    // =========================================================
+    // CREATE WITH EVENT
+    // =========================================================
+    public async Task<long> InsertWithEventAsync(CreateProductDto dto)
+    {
+        var entity = _mapper.ToEntity(dto);
+
+        var productId =
+            await _productRepository.InsertAsync(entity);
+
+        await _messageBus.PublishAsync(
+            new ProductCreatedEvent(
+                productId,
+                entity.Name,
+                entity.Category,
+                entity.UnitPrice,
+                entity.CreatedAt));
+
+        return productId;
     }
 }

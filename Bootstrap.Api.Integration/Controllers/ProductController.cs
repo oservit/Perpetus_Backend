@@ -1,4 +1,5 @@
-﻿using Core.Application.Samples.Services;
+﻿using Core.Application.Samples.DTOs;
+using Core.Application.Samples.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Central.Controllers
@@ -30,6 +31,20 @@ namespace API.Central.Controllers
                 return NotFound();
 
             return Ok(product);
+        }
+
+        [HttpPost("InsertAndPublish")]
+        public async Task<IActionResult> InsertAndPublish(
+            [FromBody] CreateProductDto dto)
+        {
+            var id =
+                await _service.InsertWithEventAsync(dto);
+
+            return Ok(new
+            {
+                Id = id,
+                Message = "Produto criado e evento publicado."
+            });
         }
     }
 }

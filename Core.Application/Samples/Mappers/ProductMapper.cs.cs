@@ -1,6 +1,6 @@
 ﻿using Riok.Mapperly.Abstractions;
-using Core.Domain.Entities.Samples;
 using Core.Application.Samples.DTOs;
+using Core.Domain.Samples.Entities;
 
 namespace Core.Application.Samples.Mappers;
 

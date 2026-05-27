@@ -1,4 +1,4 @@
-﻿using Core.Domain.Interfaces.Common;
+﻿using Core.Domain.Common.Interfaces;
 using Dommel;
 using Infra.Database.Abstractions.Interfaces;
 using System.Data;

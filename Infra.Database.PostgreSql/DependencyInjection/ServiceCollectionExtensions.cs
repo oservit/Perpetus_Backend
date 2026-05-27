@@ -1,5 +1,4 @@
-﻿using Core.Domain.Interfaces.Samples;
-
+﻿using Core.Domain.Samples.Interfaces;
 using Infra.Database.Abstractions.Interfaces;
 
 using Infra.Database.PostgreSql.Factories;

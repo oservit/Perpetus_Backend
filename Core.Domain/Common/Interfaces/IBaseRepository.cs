@@ -1,4 +1,4 @@
-﻿namespace Core.Domain.Interfaces.Common
+﻿namespace Core.Domain.Common.Interfaces
 {
     public interface IBaseRepository<TEntity>
         where TEntity : class
