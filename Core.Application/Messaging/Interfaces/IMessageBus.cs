@@ -2,5 +2,5 @@
 
 public interface IMessageBus
 {
-    Task PublishAsync<T>(T message);
+    Task PublishAsync<T>(T message, string routingKey);
 }

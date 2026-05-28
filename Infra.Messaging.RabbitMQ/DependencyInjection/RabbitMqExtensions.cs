@@ -20,7 +20,7 @@ public static class RabbitMqExtensions
 
         services.AddSingleton(settings!);
 
-        services.AddScoped<IMessageBus, RabbitMqMessageBus>();
+        services.AddSingleton<IMessageBus, RabbitMqMessageBus>();
 
         return services;
     }

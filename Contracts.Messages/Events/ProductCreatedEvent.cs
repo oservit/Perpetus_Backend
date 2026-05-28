@@ -1,7 +1,7 @@
 ﻿namespace Contracts.Messages.Events;
 
 public record ProductCreatedEvent(
-    long ProductId,
+    Guid EventId,
     string Name,
     string? Category,
     decimal? UnitPrice,

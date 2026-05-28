@@ -1,27 +1,29 @@
 ﻿using Contracts.Messages.Events;
-
-using Core.Application.Messaging.Interfaces;
+using Core.Application.Common.Results;
+using Core.Application.Samples.Publishers;
 using Core.Application.Samples.DTOs;
 using Core.Application.Samples.Mappers;
 using Core.Domain.Samples.Interfaces;
+using Infra.CrossCutting.Utilities;
+
 namespace Core.Application.Samples.Services;
 
 public class ProductService
 {
     private readonly IProductRepository _productRepository;
     private readonly ProductMapper _mapper;
-    private readonly IMessageBus _messageBus;
+    private readonly ProductPublisher _publisher;
 
     public ProductService(
         IProductRepository productRepository,
         ProductMapper mapper,
-        IMessageBus messageBus)
+        ProductPublisher publisher)
     {
         _productRepository = productRepository;
 
         _mapper = mapper;
 
-        _messageBus = messageBus;
+        _publisher = publisher;
     }
 
     // =========================================================
@@ -86,21 +88,31 @@ public class ProductService
     // =========================================================
     // CREATE WITH EVENT
     // =========================================================
-    public async Task<long> InsertWithEventAsync(CreateProductDto dto)
+    public async Task<EventPublishResult> InsertWithEventAsync(CreateProductDto dto)
     {
         var entity = _mapper.ToEntity(dto);
 
-        var productId =
-            await _productRepository.InsertAsync(entity);
+        var eventId = Guid.NewGuid();
 
-        await _messageBus.PublishAsync(
+        var payloadHash = HashHelper.Compute(
+            entity.Name,
+            entity.Category,
+            entity.UnitPrice,
+            entity.CreatedAt
+        );
+
+        await _publisher.ProductCreated(
             new ProductCreatedEvent(
-                productId,
+                eventId,
                 entity.Name,
                 entity.Category,
                 entity.UnitPrice,
                 entity.CreatedAt));
 
-        return productId;
+        return new EventPublishResult
+        {
+            EventId = eventId,
+            PayloadHash = payloadHash
+        };
     }
 }

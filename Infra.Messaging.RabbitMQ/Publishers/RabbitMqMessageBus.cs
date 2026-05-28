@@ -6,46 +6,68 @@ using System.Text.Json;
 
 namespace Infra.Messaging.RabbitMQ.Publishers;
 
-public class RabbitMqMessageBus : IMessageBus
+public class RabbitMqMessageBus : IMessageBus, IAsyncDisposable
 {
-    private readonly RabbitMqSettings _settings;
+    private readonly ConnectionFactory _factory;
+    private IConnection? _connection;
+    private IChannel? _channel;
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
+
+    private const string ExchangeName = "perpetus.events";
 
     public RabbitMqMessageBus(RabbitMqSettings settings)
     {
-        _settings = settings;
+        _factory = new ConnectionFactory
+        {
+            HostName = settings.HostName,
+            UserName = settings.UserName,
+            Password = settings.Password,
+            Port = settings.Port
+        };
     }
 
-    public async Task PublishAsync<T>(T message)
+    private async Task EnsureInitializedAsync()
     {
-        var factory = new ConnectionFactory
+        if (_channel is not null) return;
+
+        await _semaphore.WaitAsync();
+        try
         {
-            HostName = _settings.HostName,
-            UserName = _settings.UserName,
-            Password = _settings.Password,
-            Port = _settings.Port
-        };
+            if (_channel is null)
+            {
+                _connection = await _factory.CreateConnectionAsync();
+                _channel = await _connection.CreateChannelAsync();
 
-        using var connection = await factory.CreateConnectionAsync();
+                await _channel.ExchangeDeclareAsync(
+                    exchange: ExchangeName,
+                    type: ExchangeType.Topic,
+                    durable: true
+                );
+            }
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
+    }
 
-        using var channel = await connection.CreateChannelAsync();
+    public async Task PublishAsync<T>(T message, string routingKey)
+    {
+        await EnsureInitializedAsync();
 
-        const string exchangeName = "perpetus.events";
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
 
-        await channel.ExchangeDeclareAsync(
-            exchange: exchangeName,
-            type: ExchangeType.Topic,
-            durable: true);
-
-        var routingKey = typeof(T).Name;
-
-        var body = Encoding.UTF8.GetBytes(
-            JsonSerializer.Serialize(message));
-
-        await channel.BasicPublishAsync(
-            exchange: exchangeName,
+        await _channel!.BasicPublishAsync(
+            exchange: ExchangeName,
             routingKey: routingKey,
-            body: body);
+            body: body
+        );
+    }
 
-        Console.WriteLine($"Evento publicado: {routingKey}");
+    public async ValueTask DisposeAsync()
+    {
+        if (_channel is not null) await _channel.CloseAsync();
+        if (_connection is not null) await _connection.CloseAsync();
+        _semaphore.Dispose();
     }
 }

@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Contracts.Messages\Contracts.Messages.csproj" />
     <ProjectReference Include="..\Core.Domain\Core.Domain.csproj" />
+    <ProjectReference Include="..\Infra.CrossCutting\Infra.CrossCutting.csproj" />
   </ItemGroup>
 
 </Project>
