@@ -1,9 +1,10 @@
-﻿namespace Core.Application.Samples.Publishers;
+﻿
 
 using Core.Application.Messaging.Publishers;
 using Contracts.Messages.Events;
 using Core.Application.Messaging.Interfaces;
 
+namespace Core.Application.Samples.Publishers;
 public class ProductPublisher : BasePublisher
 {
     public ProductPublisher(IMessageBus bus)
@@ -11,16 +12,8 @@ public class ProductPublisher : BasePublisher
     {
     }
 
-    public Task ProductCreated(ProductCreatedEvent evt)
-        => PublishAsync(evt, "product.created");
-
-    /*
-    public Task ProductUpdated(ProductUpdatedEvent evt)
-        => PublishAsync(evt, "product.updated");
-
-    public Task ProductDeleted(Guid productId)
-        => PublishAsync(
-            new ProductDeletedEvent(productId),
-            "product.deleted");
-    */
+    public async Task<Guid> ProductCreated(ProductCreatedEvent evt)
+    {
+        return await PublishAsync(evt,"product.created");
+    }
 }

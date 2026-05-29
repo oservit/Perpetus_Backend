@@ -41,7 +41,8 @@ public class RabbitMqMessageBus : IMessageBus, IAsyncDisposable
                 await _channel.ExchangeDeclareAsync(
                     exchange: ExchangeName,
                     type: ExchangeType.Topic,
-                    durable: true
+                    durable: true,
+                    autoDelete: false
                 );
             }
         }
@@ -55,19 +56,49 @@ public class RabbitMqMessageBus : IMessageBus, IAsyncDisposable
     {
         await EnsureInitializedAsync();
 
-        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+        var json = JsonSerializer.Serialize(message);
+        var body = Encoding.UTF8.GetBytes(json);
+
+        var properties = new BasicProperties
+        {
+            ContentType = "application/json",
+            DeliveryMode = DeliveryModes.Persistent,
+
+            Headers = new Dictionary<string, object?>
+            {
+                { "event-type", typeof(T).Name },
+                { "published-at", DateTime.UtcNow.ToString("O") }
+            }
+        };
 
         await _channel!.BasicPublishAsync(
             exchange: ExchangeName,
             routingKey: routingKey,
+            mandatory: false,
+            basicProperties: properties,
             body: body
         );
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (_channel is not null) await _channel.CloseAsync();
-        if (_connection is not null) await _connection.CloseAsync();
-        _semaphore.Dispose();
+        try
+        {
+            if (_channel is not null)
+            {
+                await _channel.CloseAsync();
+                await _channel.DisposeAsync();
+            }
+
+            if (_connection is not null)
+            {
+                await _connection.CloseAsync();
+                await _connection.DisposeAsync();
+            }
+        }
+        finally
+        {
+            _semaphore.Dispose();
+        }
     }
 }

@@ -1,65 +1,41 @@
-﻿using Contracts.Messages.Events;
+﻿using Contracts.Messages.Envelopes;
+using Contracts.Messages.Events;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System.Text;
-using System.Text.Json;
+using Core.Domain.Logs.Interfaces;
 using Core.Domain.Samples.Entities;
 using Core.Domain.Samples.Interfaces;
-using Workers.LedgerWriter.Abstractions;
 
 namespace Workers.LedgerWriter.Consumers.Samples;
 
-public class ProductCreatedConsumer : IMessageConsumer
+public class ProductCreatedConsumer
+    : BaseConsumer<ProductCreatedEvent>
 {
     private readonly IProductRepository _productRepository;
 
-    public ProductCreatedConsumer(IProductRepository productRepository)
+    public ProductCreatedConsumer(
+        IProductRepository productRepository,
+        IEventInboxRepository eventInboxRepository)
+        : base(eventInboxRepository)
     {
         _productRepository = productRepository;
     }
 
-    public string QueueName => "product.created.queue";
+    public override string QueueName
+        => "product.created.queue";
 
-    public async Task HandleAsync(IChannel channel)
+    protected override async Task HandleAsync(
+        ProductCreatedEvent message,
+        Envelope envelope,
+        IChannel channel)
     {
-        var consumer = new AsyncEventingBasicConsumer(channel);
-
-        consumer.ReceivedAsync += async (sender, args) =>
+        var product = new Product
         {
-            try
-            {
-                var json = Encoding.UTF8.GetString(args.Body.ToArray());
-
-                var message =
-                    JsonSerializer.Deserialize<ProductCreatedEvent>(json);
-
-                var product = new Product
-                {
-                    Name = message!.Name,
-                    Category = message.Category,
-                    UnitPrice = message.UnitPrice,
-                    CreatedAt = message.CreatedAt
-                };
-
-                await _productRepository.InsertAsync(product);
-
-                Console.WriteLine($"[SAVED PRODUCT] {product.Name}");
-
-                await channel.BasicAckAsync(args.DeliveryTag, false);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erro: {ex.Message}");
-
-                await channel.BasicNackAsync(args.DeliveryTag, false, false);
-            }
+            Name = message.Name,
+            Category = message.Category,
+            UnitPrice = message.UnitPrice,
+            CreatedAt = message.CreatedAt
         };
 
-        await channel.BasicConsumeAsync(
-            queue: QueueName,
-            autoAck: false,
-            consumer: consumer);
-
-        Console.WriteLine($"Consumindo fila: {QueueName}");
+        await _productRepository.InsertAsync(product);
     }
 }

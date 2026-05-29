@@ -20,5 +20,12 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+    networks:
+      - perpetus-network
+
 volumes:
   rabbitmq_data:
+
+networks:
+  perpetus-network:
+    external: true

@@ -1,0 +1,32 @@
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - perpetus-network
+
+  ledger-worker:
+    build:
+      context: ..
+      dockerfile: Workers.LedgerWriter/Dockerfile
+    image: perpetus-ledger-worker
+    restart: unless-stopped
+    networks:
+      - perpetus-network
+
+networks:
+  perpetus-network:
+    external: true
+
+volumes:
+  postgres_data:

@@ -2,7 +2,7 @@ using Infra.Messaging.RabbitMQ.Configurations;
 using Infra.Messaging.RabbitMQ.Topology;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
-using Workers.LedgerWriter.Consumers.Samples;
+using Workers.LedgerWriter.Abstractions;
 
 namespace Workers.LedgerWriter;
 
@@ -32,22 +32,30 @@ public class Worker : BackgroundService
         var connection = await factory.CreateConnectionAsync(stoppingToken);
         var channel = await connection.CreateChannelAsync();
 
+        await channel.BasicQosAsync(
+            prefetchSize: 0,
+            prefetchCount: 50,
+            global: false);
+
         Console.WriteLine("RabbitMQ conectado.");
 
         await RabbitMqTopologyInitializer.InitializeAsync(channel);
 
         // ================================
-        // CONSUMERS (com scope correto)
+        // CONSUMERS (auto-discovery via DI)
         // ================================
         using (var scope = _serviceProvider.CreateScope())
         {
-            var productCreatedConsumer =
-                scope.ServiceProvider.GetRequiredService<ProductCreatedConsumer>();
+            var consumers = scope.ServiceProvider
+                .GetServices<IMessageConsumer>();
 
-            await productCreatedConsumer.HandleAsync(channel);
+            foreach (var consumer in consumers)
+            {
+                await consumer.StartAsync(channel);
+            }
+
+            Console.WriteLine("Consumers iniciados.");
         }
-
-        Console.WriteLine("Consumers iniciados.");
 
         // ================================
         // KEEP ALIVE

@@ -6,9 +6,9 @@ import sys
 
 URL = "http://localhost:50010/api/Product/InsertAndPublish"
 
-TOTAL_REQUESTS = 50000
-CONCURRENCY = 300  # Baixamos um pouco para dar fôlego ao Windows local
-LOG_INTERVAL = 5000
+TOTAL_REQUESTS = 100000
+CONCURRENCY = 200
+LOG_INTERVAL = 1000
 
 progress_counter = 0
 

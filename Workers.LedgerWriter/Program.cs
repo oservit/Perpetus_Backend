@@ -17,6 +17,8 @@ builder.Services
     .AddConsumers()
     .AddHostedService<Worker>();
 
+
+
 var host = builder.Build();
 
 host.Run();

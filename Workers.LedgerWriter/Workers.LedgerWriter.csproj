@@ -18,4 +18,16 @@
     <ProjectReference Include="..\Infra.Database.PostgreSql\Infra.Database.PostgreSql.csproj" />
     <ProjectReference Include="..\Infra.Messaging.RabbitMQ\Infra.Messaging.RabbitMQ.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.Production.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

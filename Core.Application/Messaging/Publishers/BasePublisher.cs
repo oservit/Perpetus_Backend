@@ -1,6 +1,8 @@
-﻿namespace Core.Application.Messaging.Publishers;
-
+﻿using System.Text.Json;
+using Contracts.Messages.Envelopes;
 using Core.Application.Messaging.Interfaces;
+
+namespace Core.Application.Messaging.Publishers;
 
 public abstract class BasePublisher
 {
@@ -11,6 +13,25 @@ public abstract class BasePublisher
         Bus = bus;
     }
 
-    protected Task PublishAsync<T>(T message, string routingKey)
-        => Bus.PublishAsync(message, routingKey);
+    protected async Task<Guid> PublishAsync<T>(
+        T message,
+        string routingKey)
+    {
+        var eventId = Guid.NewGuid();
+
+        var envelope = new Envelope
+        {
+            EventId = eventId,
+            MessageType = typeof(T).Name,
+            RoutingKey = routingKey,
+            Payload = JsonSerializer.Serialize(message),
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await Bus.PublishAsync(
+            envelope,
+            routingKey);
+
+        return eventId;
+    }
 }

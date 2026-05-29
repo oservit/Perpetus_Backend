@@ -92,18 +92,14 @@ public class ProductService
     {
         var entity = _mapper.ToEntity(dto);
 
-        var eventId = Guid.NewGuid();
-
         var payloadHash = HashHelper.Compute(
             entity.Name,
             entity.Category,
             entity.UnitPrice,
-            entity.CreatedAt
-        );
+            entity.CreatedAt);
 
-        await _publisher.ProductCreated(
+        var eventId = await _publisher.ProductCreated(
             new ProductCreatedEvent(
-                eventId,
                 entity.Name,
                 entity.Category,
                 entity.UnitPrice,
